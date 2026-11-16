@@ -224,3 +224,4 @@ ul { padding: 0; list-style: none; }
 }
 .item-cuerpo .etiqueta, .item-cuerpo b .ico { display: inline-block; }
 .etiqueta .ico { width: 11px; height: 11px; vertical-align: -1px; }
+.tabs[hidden] { display: none; }
