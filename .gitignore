@@ -1,0 +1,5 @@
+.DS_Store
+datos/
+js/datos-lautaro.js
+*.json
+!manifest.webmanifest

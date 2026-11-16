@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Panel de vida</title>
+  <meta name="theme-color" content="#0A0D13">
+  <meta name="description" content="Mi día en una pantalla: agenda, facu, plata, hábitos y salud.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="iconos/icono-192.png">
+  <link rel="apple-touch-icon" href="iconos/icono-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>
+    try { const t = localStorage.getItem('pdv:tema'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="barra-top">
+    <div class="marca"><span class="marca-logo" aria-hidden="true"><i></i><i></i><i></i></span><span>Panel de vida</span></div>
+    <button class="boton-icono" id="boton-tema" aria-label="Cambiar entre modo claro y oscuro"></button>
+  </header>
+
+  <main id="vista" class="vista"></main>
+
+  <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+
+  <dialog class="modal" id="modal"><form method="dialog" id="modal-form"></form></dialog>
+  <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+  <!--DATOS-->
+  <script src="js/app.js"></script>
+</body>
+</html>
