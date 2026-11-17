@@ -43,7 +43,7 @@ ul { padding: 0; list-style: none; }
 .marca-logo i:nth-child(3) { background: var(--verde); grid-column: span 2; }
 .boton-icono { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--borde-2); background: var(--tarjeta); display: grid; place-items: center; }
 
-.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr);
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr);
   padding: 6px 6px calc(6px + var(--inf)); background: color-mix(in srgb, var(--fondo-2) 92%, transparent); backdrop-filter: blur(16px); border-top: 1px solid var(--borde); }
 .tabs a { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px; border-radius: 14px; color: var(--texto-3); text-decoration: none; font-size: 11.5px; font-weight: 700; }
 .tabs a .ico { width: 22px; height: 22px; }
@@ -225,3 +225,66 @@ ul { padding: 0; list-style: none; }
 .item-cuerpo .etiqueta, .item-cuerpo b .ico { display: inline-block; }
 .etiqueta .ico { width: 11px; height: 11px; vertical-align: -1px; }
 .tabs[hidden] { display: none; }
+
+/* ── Hábitos ── */
+.identidad { font-family: var(--f-serif); font-size: 19px; font-style: italic; color: var(--c); margin: -4px 0 12px; }
+.progreso { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.progreso .barra { flex: 1; }
+.progreso b { font-size: 13px; white-space: nowrap; }
+.habs { display: flex; flex-direction: column; }
+.hab { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--borde); }
+.hab:first-child { border-top: 0; padding-top: 2px; }
+.hab-ico { width: 34px; height: 34px; flex: none; border-radius: 11px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
+.hab-cuerpo { flex: 1; min-width: 0; }
+.hab-cuerpo b { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 14.5px; }
+.hab-cuerpo > span { display: block; color: var(--texto-2); font-size: 12.5px; margin-top: 2px; }
+.hab-cuerpo i { font-style: normal; color: var(--texto); font-weight: 600; }
+.hab-cuerpo .minima { color: var(--texto-3); font-size: 12px; }
+.hab.hecho .hab-cuerpo b { color: var(--texto-3); text-decoration: line-through; }
+.hab.hecho .minima { display: none; }
+.hab-ctrl { display: flex; align-items: center; gap: 6px; flex: none; }
+.mini-btn { width: 34px; height: 34px; border-radius: 11px; border: 1.5px dashed var(--borde-2); background: none; font-size: 12px; font-weight: 800; color: var(--texto-3); }
+.mini-btn.si { border-style: solid; border-color: var(--ambar); color: var(--ambar); }
+.check.medio { background: color-mix(in srgb, var(--ambar) 30%, transparent); border-color: var(--ambar); color: var(--ambar); }
+.contador { display: flex; align-items: center; gap: 6px; }
+.contador b { min-width: 38px; text-align: center; font-size: 17px; font-weight: 800; }
+.contador b small { font-size: 11px; color: var(--texto-3); font-weight: 600; }
+.contador .boton-icono { width: 34px; height: 34px; }
+.contador .boton-icono.si { background: var(--verde); border-color: var(--verde); color: #fff; }
+.contador.grande b { font-size: 24px; min-width: 46px; }
+.contador.grande .boton { margin-left: auto; }
+.malo { padding: 12px 0; border-top: 1px solid var(--borde); display: flex; flex-direction: column; gap: 8px; }
+.malo:first-of-type { border-top: 0; padding-top: 0; }
+.malo-cab { display: flex; align-items: center; gap: 8px; }
+.malo-cab .ico { color: var(--texto-3); }
+.boton-bien { background: var(--verde); border-color: var(--verde); color: #fff; }
+.boton-mal { background: color-mix(in srgb, var(--rojo) 20%, transparent); border-color: var(--rojo); color: var(--rojo); }
+.plan { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--texto-2); }
+.enlace { border: 0; background: none; padding: 4px 0 0; color: var(--acento); font-weight: 700; font-size: 12.5px; text-align: left; }
+.ident { padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, var(--c) 10%, var(--tarjeta-2)); border-left: 4px solid var(--c); margin-top: 8px; }
+.ident b { display: block; font-family: var(--f-serif); font-weight: 400; font-style: italic; font-size: 18px; }
+.ident span { font-size: 12.5px; color: var(--texto-2); font-weight: 700; }
+.cal-cab, .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-cab { margin: 4px 0 0 0; padding-left: 0; }
+.cal-cab span { text-align: center; font-size: 10.5px; color: var(--texto-3); font-weight: 800; }
+.hab-hist { padding: 10px 0; border-top: 1px solid var(--borde); }
+.hab-hist:first-of-type { border-top: 0; }
+.hab-hist-cab { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; }
+.hab-hist-cab b { flex: 1; font-size: 14px; }
+.hab-hist .hab-ico { width: 28px; height: 28px; border-radius: 9px; }
+.hab-hist .hab-ico .ico { width: 15px; height: 15px; }
+.cel { height: 14px; border-radius: 4px; background: var(--pista); }
+.cel.si { background: var(--c); }
+.cel.medio { background: color-mix(in srgb, var(--c) 45%, transparent); }
+.cel.fut { background: none; border: 1px dashed var(--borde); }
+.cel.hoy { box-shadow: 0 0 0 1.5px var(--acento); }
+.leyes { display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; color: var(--texto-2); }
+.leyes b { color: var(--texto); }
+.barras-p { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; height: 80px; align-items: end; }
+.barras-p div { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; }
+.barras-p span { width: 100%; border-radius: 4px; background: var(--coral); }
+.barras-p span.cero { height: 4px !important; background: var(--verde); }
+.barras-p small { font-size: 9.5px; color: var(--texto-3); }
+.timer { font-size: 56px; font-weight: 800; text-align: center; letter-spacing: -.02em; padding: 10px 0; font-variant-numeric: tabular-nums; }
+.timer.fin { color: var(--verde); }
+.centro { text-align: center; }

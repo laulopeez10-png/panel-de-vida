@@ -1,7 +1,7 @@
 {
-  "name": "Panel de vida",
-  "short_name": "Mi panel",
-  "description": "Mi día en una pantalla: agenda, facu, plata, hábitos y salud.",
+  "name": "Mis hábitos",
+  "short_name": "Hábitos",
+  "description": "Mis hábitos, uno a la vez.",
   "lang": "es-AR",
   "start_url": "./#hoy",
   "scope": "./",
