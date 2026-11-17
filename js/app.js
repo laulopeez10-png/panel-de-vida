@@ -177,6 +177,29 @@
   // ── Facu ─────────────────────────────────────────────────────────────
   const facuPend = () => S.facu.filter((f) => !f.hecho && f.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha));
   const nombreFacu = (f) => `${f.titulo || cap(f.tipo)} de ${f.materia}`;
+  // Plan de estudio: cada fecha arranca con anticipación y reparte los temas hasta el día anterior
+  const ANTICIPO = { final: 21, parcial: 7, coloquio: 7, entrega: 4, otro: 5 };
+  const temasDe = (f) => f.temas && f.temas.length ? f.temas : f.tipo === 'entrega' ? ['Leer la consigna y juntar el material', 'Escribir el borrador', 'Revisar y entregar'] : ['Eje 1', 'Eje 2', 'Eje 3', 'Repaso general y modelo de examen'];
+  const inicioDe = (f) => f.inicio ? desdeIso(f.inicio) : masDias(desdeIso(f.fecha), -(ANTICIPO[f.tipo] || 5));
+  function plan(f, d = hoy()) {
+    const temas = temasDe(f), hechos = new Set(f.temasHechos || []), n = temas.length;
+    const ini = inicioDe(f), base = S.planDesde && iso(ini) < S.planDesde ? desdeIso(S.planDesde) : ini;
+    const dias = Math.max(1, diasEntre(base, desdeIso(f.fecha)));
+    const pasados = Math.min(dias, Math.max(0, diasEntre(base, d)));
+    const esperado = Math.min(n, Math.ceil((n * pasados) / dias));
+    const listos = temas.filter((_, i) => hechos.has(i)).length;
+    const sig = temas.findIndex((_, i) => !hechos.has(i));
+    return { temas, hechos, n, ini, listos, sig, atraso: esperado - listos, empezo: d >= ini, faltan: diasEntre(d, desdeIso(f.fecha)) };
+  }
+  const activos = (d = hoy()) => facuPend().filter((f) => f.fecha >= iso(d)).map((f) => ({ f, p: plan(f, d) })).filter((x) => x.p.empezo && x.p.sig >= 0);
+  const estadoPlan = (p) => p.atraso > 1 ? chip(`atrasado ${p.atraso} temas`, 'chip-mal') : p.atraso === 1 ? chip('1 tema atrás', 'chip-aviso') : chip('vas al día', 'chip-bien');
+  function tarjetaEstudio() {
+    const a = activos(); if (!a.length) return '';
+    return `<section class="tarjeta estudio">${cabeza('birrete', 'Hoy estudiás', chip(a.length === 1 ? '1 materia' : a.length + ' materias'))}
+      <ul class="lista">${a.map(({ f, p }, i) => `<li class="item"><div class="item-cuerpo item-click" data-plan-f="${f.id}"><b>${esc(p.temas[p.sig])}</b><span>${esc(f.materia)} · ${esc(f.titulo || cap(f.tipo))} ${cuando(p.faltan)} · ${p.listos}/${p.n}</span><span>${estadoPlan(p)}${i === 0 ? ' <span class="etiqueta">PRIMERO ESTO</span>' : ''}</span></div>
+        <button class="check" data-tema="${f.id}|${p.sig}" aria-label="Tema terminado">${ico('check')}</button></li>`).join('')}</ul>
+      ${a.length > 1 ? `<p class="mini" style="margin-top:8px">Con ${a.length} materias en paralelo, una hora no alcanza: empezá por la de arriba y, si podés, sumá otro bloque corto.</p>` : ''}</section>`;
+  }
   const cajaDias = (n) => `<div class="dias-box ${n <= 2 ? 'urgente' : n <= 7 ? 'pronto' : ''}"><strong>${n < 0 ? '!' : n}</strong><small>${n < 0 ? 'pasó' : n === 1 ? 'día' : 'días'}</small></div>`;
 
   // ══ Pantallas ═════════════════════════════════════════════════════════
@@ -222,6 +245,7 @@
       <div class="progreso"><div class="barra"><span style="--p:${vis.length ? hechos / vis.length : 0}"></span></div><b>${hechos} de ${vis.length}</b></div>
       ${lineas.length ? `<ul class="resumen">${lineas.map((l) => `<li>${l}</li>`).join('')}</ul>` : ''}
     </section>
+    ${tarjetaEstudio()}
     ${MOMENTOS.map(([id, nombre, ic]) => { const hs = S.habitos.filter((h) => h.momento === id && visibleHoy(h)); return hs.length ? `<section class="tarjeta">${cabeza(ic, nombre)}<ul class="habs">${hs.map(filaHabito).join('')}</ul></section>` : ''; }).join('')}
     ${S.habitos.some((h) => h.tipo === 'segun' && !visibleHoy(h)) ? `<p class="mini centro">La proteína aparece cuando marcás el gym.</p>` : ''}
     <section class="tarjeta">${cabeza('objetivos', 'Lo que quiero dejar')}
@@ -286,12 +310,12 @@
     const d = hoy(), pend = facuPend(), sin = S.facu.filter((f) => !f.hecho && !f.fecha), hechas = S.facu.filter((f) => f.hecho);
     const est = habito('h-estudio') || S.habitos.find((h) => h.ident === 'i-estudio');
     const fila = (f) => { const n = f.fecha ? diasEntre(d, desdeIso(f.fecha)) : null; return `<li class="item item-click ${f.hecho ? 'hecho' : ''}" data-facu="${f.id}">${n !== null && !f.hecho ? cajaDias(n) : `<div class="dias-box"><strong>${f.hecho ? '✓' : '?'}</strong><small>${f.hecho ? 'listo' : 'fecha'}</small></div>`}
-      <div class="item-cuerpo"><b>${esc(f.materia)}</b><span>${esc(f.titulo || cap(f.tipo))}${f.fecha ? ' · ' + fechaLarga(desdeIso(f.fecha)) + (f.hora ? ' · ' + f.hora : '') : ' · fecha a confirmar'}${f.nota ? ' · ' + esc(f.nota) : ''}</span></div>
+      <div class="item-cuerpo"><b>${esc(f.materia)}</b><span>${esc(f.titulo || cap(f.tipo))}${f.fecha ? ' · ' + fechaLarga(desdeIso(f.fecha)) + (f.hora ? ' · ' + f.hora : '') : ' · fecha a confirmar'}${f.nota ? ' · ' + esc(f.nota) : ''}</span>${f.fecha && !f.hecho ? (() => { const p = plan(f, d); return `<div class="plan-barra"><div class="barra"><span style="--p:${p.listos / p.n};--c:var(--violeta)"></span></div><span class="mini">${p.listos}/${p.n} temas · ${p.empezo ? (p.sig < 0 ? chip('¡todo estudiado!', 'chip-bien') : estadoPlan(p)) : 'empezás el ' + fechaCorta(p.ini)}</span></div>`; })() : ''}</div>
       <button class="check ${f.hecho ? 'si' : ''}" data-facu-hecho="${f.id}" aria-label="Marcar como hecho">${ico('check')}</button></li>`; };
     const sig = pend.find((f) => f.fecha >= iso(d));
     return `
     <section class="tarjeta hero"><p class="hero-fecha">Lic. en Psicología · Cuenca del Plata</p><h1>Facu</h1>
-      <ul class="resumen">${sig ? `<li>${ico('birrete')}<span>Lo que viene: <b>${esc(nombreFacu(sig))}</b> ${cuando(diasEntre(d, desdeIso(sig.fecha)))}. Hoy, tu hora de estudio va para esto.</span></li>` : ''}
+      <ul class="resumen">${sig ? `<li>${ico('birrete')}<span>Lo que viene: <b>${esc(nombreFacu(sig))}</b> ${cuando(diasEntre(d, desdeIso(sig.fecha)))}. El plan de cada fecha arranca solo con tiempo: 3 semanas antes de un final, 1 semana antes de un coloquio.</span></li>` : ''}
       ${est ? `<li>${ico('habitos')}<span>Estudio esta semana: <b>${cuentaSemana(est, d)} de 7 días</b>${racha(est) ? ' · 🔥 ' + racha(est) : ''}.</span></li>` : ''}
       ${sin.length ? `<li>${ico('aviso')}<span><b>${sin.length}</b> ${sin.length === 1 ? 'fecha' : 'fechas'} sin confirmar.</span></li>` : ''}</ul></section>
     <section class="tarjeta">${cabeza('reloj', 'Próximas fechas', `<button class="boton boton-fuerte boton-chico" data-a="nueva-facu">${ico('mas')}Fecha</button>`)}<ul class="lista">${pend.map(fila).join('') || '<div class="vacio">Sin fechas pendientes.</div>'}</ul></section>
@@ -391,8 +415,11 @@
       { n: 'tipo', et: 'Tipo', tipo: 'select', v: f.tipo, ops: [['entrega', 'Entrega (AE, TP, foro)'], ['coloquio', 'Coloquio'], ['parcial', 'Parcial'], ['final', 'Final'], ['otro', 'Otro']] },
       { n: 'titulo', et: 'Nombre corto', v: f.titulo, ph: 'AE4, Coloquio, Final…' },
       { tipo: 'dos', campos: [{ n: 'fecha', et: 'Día', tipo: 'date', v: f.fecha || '' }, { n: 'hora', et: 'Hora (opcional)', tipo: 'time', v: f.hora || '' }] },
+      { n: 'temas', et: 'Plan: temas a estudiar (uno por renglón)', tipo: 'textarea', v: temasDe(f).join('\n'), ayuda: 'Ejes, unidades o autores. El último puede ser el repaso.' },
+      { n: 'inicio', et: 'Empiezo a estudiar el', tipo: 'date', v: f.inicio || (f.fecha ? iso(inicioDe(f)) : ''), ayuda: 'Por defecto: 3 semanas antes de un final, 1 de un coloquio o parcial, 4 días de una entrega.' },
       { n: 'nota', et: 'Nota', v: f.nota || '' }, { n: 'hecho', et: 'Ya está hecho / aprobado', tipo: 'check', v: f.hecho }],
-      alGuardar: (v) => { Object.assign(f, v, { fecha: v.fecha || null }); if (nuevo) { f.id = uid(); S.facu.push(f); } avisar('Guardado'); },
+      alGuardar: (v) => { const temas = v.temas.split('\n').map((x) => x.trim()).filter(Boolean); delete v.temas; if (temas.join('|') !== temasDe(f).join('|')) { f.temas = temas; f.temasHechos = []; }
+        if (!v.inicio || (f.fecha && !f.inicio && v.inicio === iso(inicioDe(f)))) delete v.inicio; Object.assign(f, v, { fecha: v.fecha || null }); if (nuevo) { f.id = uid(); S.facu.push(f); } avisar('Guardado'); },
       borrar: nuevo ? null : () => { S.facu = S.facu.filter((x) => x !== f); } });
   }
 
@@ -405,7 +432,7 @@
     const inp = $('#archivo'); inp.value = '';
     inp.onchange = async () => {
       const f = inp.files[0]; if (!f) return;
-      try { const d = JSON.parse(await f.text()); if (!d || d.version !== 2 || !Array.isArray(d.habitos)) throw 0; S = Object.assign(VACIO(), d); migrarViejo(); guardar(); location.hash = '#hoy'; pintar(); avisar('¡Listo! Datos cargados'); }
+      try { const d = JSON.parse(await f.text()); if (!d || d.version !== 2 || !Array.isArray(d.habitos)) throw 0; S = Object.assign(VACIO(), d); migrarViejo(); S.mig2 = false; migrar2(); location.hash = '#hoy'; pintar(); avisar('¡Listo! Datos cargados'); }
       catch (e) { avisar('Ese archivo no es una copia de esta app'); }
     };
     inp.click();
@@ -413,7 +440,7 @@
 
   // ── Toques ──────────────────────────────────────────────────────────
   document.addEventListener('click', (ev) => {
-    const t = ev.target.closest('button, [data-ed], [data-ident], [data-facu], [data-post-ed]');
+    const t = ev.target.closest('button, [data-ed], [data-ident], [data-facu], [data-post-ed], [data-plan-f]');
     if (!t || t.closest('#modal')) return;
     const d = t.dataset, k = iso(hoy());
     if (d.hab) return marcar(habito(d.hab), 1);
@@ -427,6 +454,8 @@
     if (d.post) { const p = S.malos.postergar.lista.find((x) => x.id === d.post); p.hecho = true; p.cuando = k; guardar(); avisar('¡Destrabado!'); return pintar(); }
     if (d.postEd) { const p = S.malos.postergar.lista.find((x) => x.id === d.postEd); return formulario({ titulo: 'Lo que postergo', campos: [{ n: 't', et: 'Qué', v: p.t, req: true }], alGuardar: (v) => { p.t = v.t; }, borrar: () => { S.malos.postergar.lista = S.malos.postergar.lista.filter((x) => x !== p); } }); }
     if (d.plan) { const m = S.malos[d.plan]; return formulario({ titulo: 'Mi plan', texto: 'Un renglón por idea. Que sea difícil, invisible o poco atractivo.', campos: [{ n: 'p', et: 'Ideas', tipo: 'textarea', v: (m.plan || []).join('\n') }], alGuardar: (v) => { m.plan = v.p.split('\n').map((x) => x.trim()).filter(Boolean); } }); }
+    if (d.tema) { const [id, i] = d.tema.split('|'); const f = S.facu.find((x) => x.id === id); f.temasHechos = [...new Set([...(f.temasHechos || []), Number(i)])]; guardar(); const p = plan(f); avisar(p.sig < 0 ? '¡Todo estudiado! Ahora, repasar tranqui' : `Tema listo · ${p.listos}/${p.n}`); return pintar(); }
+    if (d.planF) return editarFacu(S.facu.find((x) => x.id === d.planF));
     if (d.facuHecho) { ev.stopPropagation(); const f = S.facu.find((x) => x.id === d.facuHecho); f.hecho = !f.hecho; guardar(); if (f.hecho) avisar('¡Vamos! Una menos'); return pintar(); }
     if (d.facu && t.tagName !== 'BUTTON') return editarFacu(S.facu.find((f) => f.id === d.facu));
     switch (d.a) {
@@ -449,9 +478,16 @@
 
   function pintarTema() { $('#boton-tema').innerHTML = ico(document.documentElement.dataset.theme === 'light' ? 'luna' : 'sol'); }
 
+  function migrar2() {
+    if (!S || S.mig2) return;
+    const h = S.habitos.find((x) => x.id === 'h-minox');
+    if (h && h.momento === 'manana') { h.momento = 'noche'; h.ancla = 'Después de bañarme (tipo 21)'; }
+    if (!S.planDesde) S.planDesde = iso(hoy());
+    S.mig2 = true; guardar();
+  }
   // ── Arranque ─────────────────────────────────────────────────────────
   if (!S && window.DATOS_INICIALES) { S = Object.assign(VACIO(), JSON.parse(JSON.stringify(window.DATOS_INICIALES))); migrarViejo(); guardar(); }
-  pintarTema(); pintar();
+  migrar2(); pintarTema(); pintar();
   window.addEventListener('hashchange', () => { window.scrollTo(0, 0); pintar(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('#modal').open) pintar(); });
   if ('serviceWorker' in navigator && location.protocol === 'https:' && location.hostname.endsWith('github.io')) navigator.serviceWorker.register('sw.js').catch(() => {});

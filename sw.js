@@ -1,5 +1,5 @@
 // Guarda la app en el celu para que abra sin internet. Tus datos no pasan por acá (están en el almacenamiento del navegador).
-const VERSION = 'hab-v1';
+const VERSION = 'hab-v2';
 const ARCHIVOS = ['./', './index.html', './css/estilos.css', './js/app.js', './manifest.webmanifest', './iconos/icono-192.png', './iconos/icono-512.png'];
 
 self.addEventListener('install', (e) => {

@@ -288,3 +288,10 @@ ul { padding: 0; list-style: none; }
 .timer { font-size: 56px; font-weight: 800; text-align: center; letter-spacing: -.02em; padding: 10px 0; font-variant-numeric: tabular-nums; }
 .timer.fin { color: var(--verde); }
 .centro { text-align: center; }
+
+.estudio { border-color: color-mix(in srgb, var(--violeta) 40%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--violeta) 14%, var(--tarjeta)), var(--tarjeta) 60%); }
+.estudio .item-cuerpo span { margin-top: 2px; }
+.plan-barra { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.plan-barra .barra { height: 6px; }
+.item-cuerpo span.chip { display: inline-flex; }
+.item-cuerpo span.etiqueta { display: inline-block; }
